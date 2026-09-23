@@ -377,23 +377,30 @@ function noise(len,shape){
   for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,shape);
   const s=actx.createBufferSource(); s.buffer=buf; return s;
 }
+function brown(len){ // soft, deep "breath" noise
+  const buf=actx.createBuffer(1,Math.floor(actx.sampleRate*len),actx.sampleRate), d=buf.getChannelData(0); let l=0;
+  for(let i=0;i<d.length;i++){ l=(l+.02*(Math.random()*2-1))/1.02; d[i]=l*3.5; }
+  const s=actx.createBufferSource(); s.buffer=buf; return s;
+}
+let candleNote=0;
 function puff(){
   if(!actx) return; const t=actx.currentTime+.01;
-  // 1. breath: soft airy whoosh that rises then fades, pitch sliding down like air leaving the lips
-  const b=noise(.7,.5), bp=actx.createBiquadFilter(), lp=actx.createBiquadFilter(), bg=actx.createGain();
-  bp.type="bandpass"; bp.Q.value=.7; bp.frequency.setValueAtTime(1500,t); bp.frequency.exponentialRampToValueAtTime(420,t+.55);
-  lp.type="lowpass"; lp.frequency.value=3200;
-  bg.gain.setValueAtTime(0,t); bg.gain.linearRampToValueAtTime(.26,t+.06); bg.gain.exponentialRampToValueAtTime(.0008,t+.6);
-  b.connect(bp); bp.connect(lp); lp.connect(bg); bg.connect(master); b.start(t);
-  // 2. the flame snuffing out: a tiny bright "fft"
-  const f=noise(.14,2), hp=actx.createBiquadFilter(), fg=actx.createGain();
-  hp.type="highpass"; hp.frequency.value=2800; fg.gain.setValueAtTime(.09,t+.14); fg.gain.exponentialRampToValueAtTime(.0008,t+.28);
-  f.connect(hp); hp.connect(fg); fg.connect(master); f.start(t+.14);
-  // 3. a faint low wisp as the smoke lifts
-  const o=actx.createOscillator(), og=actx.createGain();
-  o.type="sine"; o.frequency.setValueAtTime(190,t+.14); o.frequency.exponentialRampToValueAtTime(70,t+.45);
-  og.gain.setValueAtTime(0,t+.14); og.gain.linearRampToValueAtTime(.035,t+.17); og.gain.exponentialRampToValueAtTime(.0008,t+.48);
-  o.connect(og); og.connect(master); o.start(t+.14); o.stop(t+.5);
+  // 1. a gentle human "whooo" breath
+  const b=brown(.9), lp=actx.createBiquadFilter(), bg=actx.createGain();
+  lp.type="lowpass"; lp.frequency.setValueAtTime(700,t); lp.frequency.linearRampToValueAtTime(1100,t+.12); lp.frequency.exponentialRampToValueAtTime(380,t+.7);
+  bg.gain.setValueAtTime(0,t); bg.gain.linearRampToValueAtTime(.55,t+.1); bg.gain.setValueAtTime(.55,t+.22); bg.gain.exponentialRampToValueAtTime(.001,t+.75);
+  b.connect(lp); lp.connect(bg); bg.connect(master); b.start(t);
+  // 2. the flame fluttering and dying: low noise shaken by a fast tremolo
+  const f=brown(.3), flp=actx.createBiquadFilter(), fg=actx.createGain(), trem=actx.createGain(), lfo=actx.createOscillator(), lfoAmt=actx.createGain();
+  flp.type="lowpass"; flp.frequency.value=420;
+  lfo.frequency.setValueAtTime(34,t+.12); lfo.frequency.linearRampToValueAtTime(14,t+.38); lfoAmt.gain.value=.5; trem.gain.value=.5;
+  lfo.connect(lfoAmt); lfoAmt.connect(trem.gain);
+  fg.gain.setValueAtTime(0,t+.12); fg.gain.linearRampToValueAtTime(.45,t+.15); fg.gain.exponentialRampToValueAtTime(.001,t+.42);
+  f.connect(flp); flp.connect(trem); trem.connect(fg); fg.connect(master); f.start(t+.12); lfo.start(t+.12); lfo.stop(t+.45);
+  // 3. a soft magical twinkle, one note higher for each candle
+  const scale=[523.25,587.33,659.25,783.99,880,1046.5,1174.66,1318.5,1568];
+  const n=scale[candleNote++%scale.length], tt=t+.28;
+  tone(n,tt,1.4,.09,"sine"); tone(n*2,tt,.7,.03,"sine"); tone(n*3,tt+.02,.35,.012,"sine");
 }
 let lastBoom=0;
 function boom(){
@@ -713,7 +720,7 @@ $("#finale").addEventListener("pointerdown",e=>{ if(e.target.id==="finale"){ ini
 $("#replaySong").addEventListener("click",()=>{ playSong(); confettiBurst(); launch(W/2,H*.12,345,"heart"); });
 $("#restart").addEventListener("click",()=>{
   clearInterval(fwTimer); scatterFormers();
-  wished=false; buildCandles(); opened.clear(); $("#field").innerHTML="";
+  wished=false; candleNote=0; buildCandles(); opened.clear(); $("#field").innerHTML="";
   $("#cakeTitle").textContent="Make a wish first.";
   $("#cakeHint").textContent="Then blow out the candles. Tap each flame, or blow into your microphone.";
   $("#micBtn").textContent="Blow with my breath"; $("#micBtn").style.visibility="";
