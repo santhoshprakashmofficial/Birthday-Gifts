@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy Birthday, My Love</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="moon" aria-hidden="true"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<button id="mute" aria-pressed="false" aria-label="Mute sound">
+  <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+  <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+</button>
+
+<!-- 1. Envelope -->
+<section class="scene active" id="intro" aria-label="A sealed envelope">
+  <h1 class="display" data-name></h1>
+  <p class="lede">Someone who adores you made you something. Open it when you're ready.</p>
+  <div class="envelope" id="envelope">
+    <div class="env-back"></div>
+    <div class="env-card"><b>Happy Birthday</b><span>open slowly…</span></div>
+    <div class="env-pocket"></div>
+    <div class="env-flap"></div>
+    <button class="seal" id="seal" aria-label="Break the seal and open">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3.2 1.7-2 3.2-3.2 5.3-3.2 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- 2. Cake -->
+<section class="scene" id="cake" aria-label="Birthday cake">
+  <h2 class="display" id="cakeTitle" style="font-size:clamp(2.4rem,8vw,4.4rem)">Make a wish first.</h2>
+  <p class="lede" id="cakeHint">Then blow out the candles. Tap each flame, or blow into your microphone.</p>
+  <div class="cake-wrap" id="cakeWrap">
+    <div class="candles" id="candles"></div>
+    <div class="cake">
+      <div class="tier top"><div class="icing"></div></div>
+      <div class="tier bottom"><div class="icing"></div></div>
+      <div class="plate"></div>
+    </div>
+  </div>
+  <button class="btn" id="micBtn">Blow with my breath</button>
+  <p class="cake-note" id="cakeNote" aria-live="polite"></p>
+</section>
+
+<!-- 3. Fireworks + name -->
+<section class="scene" id="sky-scene" aria-label="Fireworks spelling your name">
+  <p class="whisper reveal" id="tapHint">Tap anywhere to light up the sky</p>
+  <button class="btn reveal" id="toLetter">Read what I wrote you</button>
+</section>
+
+<!-- 4. Letter -->
+<section class="scene" id="letter" aria-label="A letter">
+  <article class="paper" id="paper" title="Tap to show the whole letter">
+    <h2 id="letterHello"></h2>
+    <div id="letterBody" aria-live="polite"></div>
+    <p class="sign" id="sign"></p>
+  </article>
+  <button class="btn reveal" id="toLanterns">There's one more thing</button>
+</section>
+
+<!-- 5. Lanterns -->
+<section class="scene" id="lantern-scene" aria-label="Floating lanterns">
+  <div class="field" id="field"></div>
+  <div class="lantern-head">
+    <h2>Every lantern holds a reason I love you.</h2>
+    <p class="lede" id="lanternCount" aria-live="polite"></p>
+  </div>
+  <div class="lantern-foot"><button class="btn reveal" id="toFinale">Your last surprise</button></div>
+</section>
+<div class="reason" id="reason" role="dialog" aria-modal="true" aria-label="A reason">
+  <div class="reason-card"><span id="reasonText"></span><small>Tap to keep looking</small></div>
+</div>
+
+<!-- 6. Finale -->
+<section class="scene" id="finale" aria-label="Finale">
+  <h2 class="display" id="finaleTitle"></h2>
+  <p class="lede">Here's to you, and to every birthday I get to spend beside you.</p>
+  <div class="row">
+    <button class="btn" id="replaySong">Play our song again</button>
+    <button class="btn" id="restart">Start over</button>
+  </div>
+</section>
+
+<script src="js/config.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
