@@ -1,4 +1,37 @@
-const CONFIG = window.CONFIG;
+/* =====================================================================
+   PERSONALISE HERE
+   Or add to the link:  ?name=Priya&from=Arjun
+   ===================================================================== */
+const CONFIG = {
+  name: "My Love",          // her name
+  from: "Yours",            // your name
+  candles: 5,               // 1 to 9
+  letter:
+`Happy birthday, my favourite person.
+
+My dear Ms. Darling ❤️,
+This might be just a normal birthday for you… but for me, your birthday is very special. 🥺❤️ I’ll do everything I can to make your birthday as special and memorable as possible for you. ❤️
+So, today is your birthday — just enjoy it. ❤️ But not only today… I want you to enjoy every single day of your life, every moment and every minute. 🤗
+It’s almost 721 days of our relationship… I’ve been there for you all these days, and I’ll continue to be there for you for all the days to come. ❤️
+Not just on your birthday… for as long as I’m here, every single day, every minute, and every little moment, I just want to see you happy, smiling, and enjoying your life. 🥺❤️
+You deserve all the happiness in this world, my dear. And as long as I’m here, I’ll always try my best to make your days a little more special. ❤️
+Love you so much. ❤️
+Happy Birthday, Ms. Darling! 🎂❤️
+Miss you… 🥺🤗
+
+I love you. Today, and every day after.`,
+  reasons: [
+    "The way your laugh fills an entire room.",
+    "You notice the little things nobody else does.",
+    "You make my bad days shorter and my good days better.",
+    "Your kindness, even when no one is watching.",
+    "The way you look at me when you think I'm not paying attention.",
+    "You're my favourite person to do absolutely nothing with.",
+    "You believe in me more than I believe in myself.",
+    "Every plan I make for the future has you in it."
+  ]
+};
+
 const qs = new URLSearchParams(location.search);
 const NAME = (qs.get("name") || CONFIG.name).trim();
 const FROM = (qs.get("from") || CONFIG.from).trim();
@@ -230,11 +263,67 @@ function frame(now){
 /* ================= SCENES ================= */
 let fwTimer=null;
 const later=(fn,ms)=>setTimeout(fn,ms);
-const enter={};
+const enter={}, leave={};
 function go(id){
+  (leave[current]||(()=>{}))();
   $("#"+current).classList.remove("active");
   current=id; $("#"+id).classList.add("active");
+  updateProgress(id);
   (enter[id]||(()=>{}))();
+}
+
+/* ---------- progress dots ---------- */
+const ORDER=["intro","cake","sky-scene","letter","lantern-scene","finale"];
+const progEl=$("#progress");
+ORDER.forEach(()=>{ const i=document.createElement("i"); progEl.appendChild(i); });
+function updateProgress(id){
+  const idx=ORDER.indexOf(id); if(idx<0) return;
+  progEl.classList.add("show");
+  [...progEl.children].forEach((d,i)=>{
+    d.className = i<idx ? "done" : i===idx ? "now" : "";
+  });
+}
+
+/* ---------- float hearts (letter) ---------- */
+let heartTimer=null;
+function spawnHeart(){
+  const h=document.createElement("span"); h.className="float-heart";
+  h.textContent=Math.random()<.2?"💖":"❤️";
+  h.style.left=rand(8,92)+"vw";
+  h.style.setProperty("--s",rand(.8,1.7).toFixed(2)+"rem");
+  h.style.setProperty("--d",rand(6,10).toFixed(1)+"s");
+  h.style.setProperty("--delay","0s");
+  $("#letter").appendChild(h);
+  setTimeout(()=>h.remove(),10500);
+}
+
+/* ---------- sparkle cursor trail ---------- */
+if(!REDUCE) addEventListener("pointermove",e=>{
+  if(Math.random()>.5) return;
+  const s=document.createElement("span"); s.className="trail-spark";
+  s.style.left=e.clientX+"px"; s.style.top=e.clientY+"px";
+  s.style.setProperty("--tc",["#FFD9A0","#FF9DB5","#FFF1D6"][Math.floor(rand(3))]);
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),850);
+},{passive:true});
+
+/* ---------- release your own lantern ---------- */
+function buildMyLantern(text){
+  const field=$("#field");
+  const b=document.createElement("button"); b.className="lantern mine"; b.setAttribute("aria-label","Your wish lantern");
+  const x=rand(8,88), dur=rand(20,26);
+  b.style.cssText=`--x:${x}%;--s:1.05;--dur:${dur.toFixed(1)}s;--delay:0s;--row:0`;
+  b.innerHTML=`<span class="body"><i class="core"></i><span>${text.replace(/</g,"&lt;").slice(0,40)||"♥"}</span></span>`;
+  b.addEventListener("click",()=>{ initAudio(); chime(); b.classList.add("opened"); });
+  field.appendChild(b);
+  const r=b.getBoundingClientRect();
+  for(let k=0;k<34;k++){ const a=rand(6.28); sparks.push(mkSpark(r.left+r.width/2,r.top+r.height/2,Math.cos(a)*rand(.5,3),Math.sin(a)*rand(.5,3)-1,rand(265,300)%360,70,.02,.96,1.8,74)); }
+}
+function sendWish(){
+  const inp=$("#wishInput"), v=inp.value.trim();
+  if(!v){ inp.focus(); return; }
+  initAudio(); chime(); buildMyLantern(v); inp.value="";
+  $("#wishNote").textContent="Your wish is floating up to the stars ✨";
 }
 
 /* 1 — envelope */
@@ -262,7 +351,7 @@ function buildCandles(){
 const lit=()=>[...candlesEl.querySelectorAll(".candle:not(.out)")];
 function blowOut(c){
   if(c.classList.contains("out")) return;
-  initAudio(); puff(); c.classList.add("out"); c.setAttribute("aria-label","Candle blown out");
+  initAudio(); puff(); chime(); c.classList.add("out"); c.setAttribute("aria-label","Candle blown out");
   const left=lit().length; $("#cakeWrap").style.setProperty("--lit",left/candlesEl.children.length);
   if(left===0) allOut();
 }
@@ -329,8 +418,7 @@ function finishLetter(){
   const el=$("#letterBody"); el.textContent=CONFIG.letter; el.classList.remove("typing");
   $("#sign").classList.add("show"); chime();
   later(()=>$("#toLanterns").classList.add("show"),900);
-}
-$("#paper").addEventListener("click",finishLetter);
+}$("#paper").addEventListener("click",finishLetter);
 $("#toLanterns").addEventListener("click",()=>go("lantern-scene"));
 
 /* 5 — lanterns */
@@ -340,7 +428,7 @@ function updateCount(){
   $("#lanternCount").textContent = opened.size===n ? "Every one of them is true." : `Tap them as they float by. ${opened.size} of ${n} opened.`;
 }
 enter["lantern-scene"]=()=>{
-  const field=$("#field"); if(field.children.length){ updateCount(); return; }
+  const field=$("#field"); if(field.children.length){ updateCount(); $("#wishZone").classList.add("show"); return; }
   const n=CONFIG.reasons.length;
   CONFIG.reasons.forEach((r,i)=>{
     const b=document.createElement("button"); b.className="lantern"; b.setAttribute("aria-label",`Open lantern ${i+1}`);
@@ -351,6 +439,7 @@ enter["lantern-scene"]=()=>{
     field.appendChild(b);
   });
   updateCount();
+  $("#wishZone").classList.add("show");
 };
 function openReason(i,b){
   initAudio(); chime(); opened.add(i); b.classList.add("opened");
@@ -373,11 +462,13 @@ enter.finale=()=>{
   buildHeart(); confettiBurst(); playSong();
   fwTimer=setInterval(()=>{ if(!REDUCE) launch(rand(W*.1,W*.9),rand(H*.06,H*.2)); },2600);
 };
+leave.finale=()=>{ clearInterval(fwTimer); };
 $("#finale").addEventListener("pointerdown",e=>{ if(e.target.id==="finale"){ initAudio(); launch(e.clientX,Math.max(40,e.clientY),rand(360)); }});
 $("#replaySong").addEventListener("click",()=>{ playSong(); confettiBurst(); launch(W/2,H*.12,345,"heart"); });
 $("#restart").addEventListener("click",()=>{
   clearInterval(fwTimer); scatterFormers();
   wished=false; candleNote=0; buildCandles(); opened.clear(); $("#field").innerHTML="";
+  $("#wishNote").textContent="…or tap a floating lantern as it passes by.";
   $("#cakeTitle").textContent="Make a wish first.";
   $("#cakeHint").textContent="Then blow out the candles. Tap each flame, or blow into your microphone.";
   $("#micBtn").textContent="Blow with my breath"; $("#micBtn").style.visibility="";
@@ -388,3 +479,10 @@ $("#restart").addEventListener("click",()=>{
 });
 
 resize(); buildCandles(); requestAnimationFrame(frame);
+$("#sendWish").addEventListener("click",sendWish);
+$("#wishInput").addEventListener("keydown",e=>{ if(e.key==="Enter") sendWish(); });
+
+/* letter: gentle floating hearts while reading (wrapped after enter.letter is defined) */
+const _enterLetter=enter.letter;
+enter.letter=()=>{ _enterLetter(); if(!REDUCE){ for(let i=0;i<4;i++) setTimeout(spawnHeart,i*900); heartTimer=setInterval(spawnHeart,1400); } };
+leave.letter=()=>{ clearInterval(heartTimer); document.querySelectorAll("#letter .float-heart").forEach(h=>h.remove()); };

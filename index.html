@@ -7,9 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div id="progress" aria-hidden="true"></div>
 <div class="moon" aria-hidden="true"></div>
 <canvas id="sky" aria-hidden="true"></canvas>
 <canvas id="fx" aria-hidden="true"></canvas>
@@ -74,6 +75,13 @@
     <h2>Every lantern holds a reason I love you.</h2>
     <p class="lede" id="lanternCount" aria-live="polite"></p>
   </div>
+  <div class="wish-zone reveal" id="wishZone">
+    <div class="wish-row">
+      <input id="wishInput" maxlength="40" placeholder="Write a wish for your year ahead…" aria-label="Your wish">
+      <button class="btn" id="sendWish">Release 🏮</button>
+    </div>
+    <p class="whisper" id="wishNote" aria-live="polite">…or tap a floating lantern as it passes by.</p>
+  </div>
   <div class="lantern-foot"><button class="btn reveal" id="toFinale">Your last surprise</button></div>
 </section>
 <div class="reason" id="reason" role="dialog" aria-modal="true" aria-label="A reason">
@@ -90,7 +98,6 @@
   </div>
 </section>
 
-<script src="js/config.js"></script>
-<script src="js/script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

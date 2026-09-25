@@ -209,6 +209,55 @@ opacity: var(--lit);transition: opacity .6s;rotate: -180deg;}
 .reason.show .reason-card{transform:none}
 .reason small{display:block;margin-top:1.4rem;font-size:1rem;font-style:normal;color:var(--muted);text-shadow:none}
 
+/* ---------- progress dots ---------- */
+#progress{
+  position:fixed;z-index:9;left:14px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:10px;opacity:0;transition:opacity .8s;
+}
+#progress.show{opacity:1}
+#progress i{width:7px;height:7px;border-radius:50%;background:rgba(251,244,255,.28);transition:background .4s,transform .4s,box-shadow .4s}
+#progress i.done{background:rgba(251,244,255,.85);box-shadow:0 0 8px rgba(251,244,255,.8)}
+#progress i.now{background:var(--blush);transform:scale(1.6);box-shadow:0 0 12px rgba(255,157,181,.9)}
+@media (max-width:600px){#progress{left:8px;gap:8px}}
+
+/* ---------- wish release ---------- */
+.wish-zone{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:.55rem;margin-top:.6rem}
+.wish-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+#wishInput{
+  font:italic 500 1.05rem/1 var(--serif);color:var(--text);
+  padding:.85rem 1.2rem;min-width:min(300px,70vw);border-radius:999px;
+  border:1px solid rgba(255,200,215,.45);background:rgba(255,255,255,.07);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);outline:none;transition:border-color .3s,box-shadow .3s
+}
+#wishInput::placeholder{color:rgba(251,244,255,.55)}
+#wishInput:focus{border-color:var(--amber);box-shadow:0 0 24px rgba(255,179,71,.35)}
+#wishNote{font-size:1rem}
+.lantern.mine{--s:1.05}
+.lantern.mine .body{background:radial-gradient(ellipse at 50% 72%,#FDEBFF 0%,#E7B6FF 36%,#A44FD8 80%,#6E2B9E 100%);
+  box-shadow:0 0 30px 8px rgba(200,140,255,.55),0 0 100px 30px rgba(160,90,255,.25)}
+
+/* ---------- float hearts ---------- */
+.float-heart{
+  position:absolute;top:-40px;font-size:var(--s,1.2rem);pointer-events:none;z-index:3;
+  animation:floatHeart var(--d,7s) linear var(--delay,0s) infinite;opacity:.9;
+  filter:drop-shadow(0 0 6px rgba(255,120,160,.6))
+}
+@keyframes floatHeart{
+  from{transform:translateY(0) rotate(-6deg)}
+  50%{transform:translateY(calc(36vh + 40vh)) rotate(8deg) translateX(14px)}
+  to{transform:translateY(calc(72vh + 60vh)) rotate(-5deg) translateX(-8px);opacity:0}
+}
+
+/* ---------- sparkle cursor trail ---------- */
+.trail-spark{position:fixed;z-index:9;pointer-events:none;border-radius:50%;
+  width:6px;height:6px;background:radial-gradient(circle,#fff 0%,var(--tc,#FFD9A0) 45%,transparent 70%);
+  animation:trailFade .8s ease-out forwards}
+@keyframes trailFade{from{opacity:.95;transform:scale(1)}to{opacity:0;transform:translateY(14px) scale(.2)}}
+
+@media (prefers-reduced-motion: reduce){
+  .float-heart,.trail-spark{display:none}
+}
+
 /* ---------- 6. finale ---------- */
 #finale{justify-content:flex-end;gap:1rem}
 #finale .display{font-size:clamp(2.4rem,8.5vw,5rem)}
@@ -217,4 +266,5 @@ opacity: var(--lit);transition: opacity .6s;rotate: -180deg;}
   .envelope,.seal,.flame,.lantern .body,.lantern .core,.lantern::after{animation:none!important}
   .lantern:not(.opened) .body{box-shadow:0 0 28px 8px rgba(255,215,125,.9),0 0 90px 28px rgba(255,160,70,.5)}
   .lantern{animation:none;bottom:auto;top:calc(34% + var(--row) * 90px)}
+  .lantern.mine{bottom:auto;top:calc(34% + 3 * 90px)}
 }
